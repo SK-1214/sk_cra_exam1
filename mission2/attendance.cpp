@@ -22,9 +22,6 @@ enum {
 	MAX_DAY = 7,
 };
 
-int attend_day[MAX_PLAYER][MAX_NUM];
-int points[MAX_PLAYER];
-
 string names[MAX_PLAYER];
 bool mandatory_training[MAX_PLAYER];
 
@@ -33,8 +30,6 @@ map<string, int> player;
 
 class BASEBALL_PLAYER {
 public:
-	string name;
-
 	void update_attendDay(int day) {
 		attend_day[day]++;
 
@@ -73,10 +68,19 @@ public:
 		point += num;
 	}
 
-	int get_point() {
+	int getPoint() {
 		return point;
 	}
+
+	void setName(string input_name) {
+		name = input_name;
+	}
+
+	string getName() {
+		return name;
+	}
 private:
+	string name;
 	int point;
 	int attend_day[MAX_DAY];
 	bool mandatory_training = false;
@@ -124,21 +128,13 @@ int get_DayIndex(string day) {
 	return day_index;
 }
 
-void update_trainingScore(int player_id, int day_index, int add_point) {
-
-	attend_day[player_id][day_index] += 1;
-	points[player_id] += add_point;
-	if ((day_index == WED) || (day_index == SAT) || (day_index == SUN)) {
-		mandatory_training[player_id] = true;
-	}
-}
-
 void generate_PlayerInfo(string name, string day) {
 	
-	int player_id = get_playerID(name);
+	int id = get_playerID(name);
 	int day_index = get_DayIndex(day);
-	BASEBALL_PLAYER* pPlayer = &bplayer[player_id];
+	BASEBALL_PLAYER* pPlayer = &bplayer[id];
 
+	pPlayer->setName(name);
 	pPlayer->add_point(day_index);
 	pPlayer->update_attendDay(day_index);
 
@@ -147,8 +143,8 @@ void generate_PlayerInfo(string name, string day) {
 void caculate_AdditionalPoints() {
 	BASEBALL_PLAYER* pPlayer;
 
-	for (int player_id = 1; player_id <= num_player; player_id++) {
-		pPlayer = &bplayer[player_id];
+	for (int id = 1; id <= num_player; id++) {
+		pPlayer = &bplayer[id];
 
 		if (pPlayer->IsAttendWedTrainingHard() == true || pPlayer->IsAttendWeekendTrainingHard() == true) {
 			pPlayer->IncreaseAdditionalPoint(10);
@@ -159,12 +155,14 @@ void caculate_AdditionalPoints() {
 void print_PlayerScore()
 {
 	BASEBALL_PLAYER* pPlayer;
+	string name;
 	int points;
-	for (int player_id = 1; player_id <= num_player; player_id++) {
-		pPlayer = &bplayer[player_id];
-		points = pPlayer->get_point();
+	for (int id = 1; id <= num_player; id++) {
+		pPlayer = &bplayer[id];
+		name = pPlayer->getName();
+		points = pPlayer->getPoint();
 
-		cout << "NAME : " << names[player_id] << ", ";
+		cout << "NAME : " << name << ", ";
 		cout << "POINT : " << points << ", ";
 		cout << "GRADE : ";
 
@@ -182,9 +180,14 @@ void print_PlayerScore()
 	std::cout << "\n";
 	std::cout << "Removed player\n";
 	std::cout << "==============\n";
-	for (int player_id = 1; player_id <= num_player; player_id++) {
-		if (points < 30 && mandatory_training[player_id] == false) {
-			std::cout << names[player_id] << "\n";
+	for (int id = 1; id <= num_player; id++) {
+		
+		pPlayer = &bplayer[id];
+		name = pPlayer->getName();
+		points = pPlayer->getPoint();
+
+		if (points < 30 && pPlayer->IsAttendMandatoryTraining() == false) {
+			std::cout << name << "\n";
 		}
 	}
 }
