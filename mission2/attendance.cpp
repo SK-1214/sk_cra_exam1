@@ -5,7 +5,6 @@
 #include <map>
 #include <algorithm>
 
-
 using namespace std;
 
 #define MAX_NUM		(100)
@@ -192,7 +191,7 @@ void print_PlayerScore()
 	}
 }
 
-
+/*
 int main() {
 	ifstream fin{ "attendance_weekday_500.txt" }; //500개 데이터 입력
 
@@ -209,3 +208,4 @@ int main() {
 
 	return 0;
 }
+*/
