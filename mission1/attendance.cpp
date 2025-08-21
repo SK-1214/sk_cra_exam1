@@ -45,7 +45,7 @@ void update_trainingScore(int player_id, int day_index, int add_point) {
 
 	attend_per_day[player_id][day_index] += 1;
 	points[player_id] += add_point;
-	if ((day_index == 2) || (day_index == 5) || (day_index == 6)) {
+	if ((day_index == WED) || (day_index == SAT) || (day_index == SUN)) {
 		mandatory_training[player_id] = true;
 	}
 }
@@ -59,7 +59,6 @@ void analize_attendance(string name, string day) {
 	add_point++;
 
 	if (day == "monday") {
-		//day_index = 0;
 		day_index = MON;
 	}
 	if (day == "tuesday") {
