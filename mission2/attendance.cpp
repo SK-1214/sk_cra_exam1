@@ -19,9 +19,10 @@ enum {
 	FRI = 4,
 	SAT = 5,
 	SUN = 6,
+	MAX_DAY = 7,
 };
 
-int attend_per_day[MAX_PLAYER][MAX_NUM];
+int attend_day[MAX_PLAYER][MAX_NUM];
 int points[MAX_PLAYER];
 
 string names[MAX_PLAYER];
@@ -29,6 +30,39 @@ bool mandatory_training[MAX_PLAYER];
 
 
 map<string, int> player;
+
+class BASEBALL_PLAYER {
+public:
+	string name;
+	int id;
+	int point;
+	int attend_day[MAX_DAY];
+
+	void update_attendDay(int day) {
+		attend_day[day]++;
+	}
+
+	void add_point(int day) {
+		point++;
+
+		if (day == WED){
+			point += 3;
+			mandatory_training = true;
+		}
+		else if (day == SAT || day == SUN) {
+			point += 2;
+			mandatory_training = true;
+		}
+		else{ 
+			point++;
+		}
+	}
+private:
+	bool mandatory_training = false;
+};
+
+BASEBALL_PLAYER bplayer[MAX_PLAYER];
+
 int num_player = 0;
 
 int get_playerID(std::string& name)
@@ -41,9 +75,37 @@ int get_playerID(std::string& name)
 	return player[name];
 }
 
+int get_DayIndex(string day) {
+	int day_index;
+
+	if (day == "monday") {
+		day_index = MON;
+	}
+	if (day == "tuesday") {
+		day_index = TUE;
+	}
+	if (day == "wednesday") {
+		day_index = WED;
+	}
+	if (day == "thursday") {
+		day_index = THU;
+	}
+	if (day == "friday") {
+		day_index = FRI;
+	}
+	if (day == "saturday") {
+		day_index = SAT;
+	}
+	if (day == "sunday") {
+		day_index = SUN;
+	}
+
+	return day_index;
+}
+
 void update_trainingScore(int player_id, int day_index, int add_point) {
 
-	attend_per_day[player_id][day_index] += 1;
+	attend_day[player_id][day_index] += 1;
 	points[player_id] += add_point;
 	if ((day_index == WED) || (day_index == SAT) || (day_index == SUN)) {
 		mandatory_training[player_id] = true;
@@ -89,11 +151,11 @@ void analize_attendance(string name, string day) {
 void caculate_result() {
 
 	for (int player_id = 1; player_id <= num_player; player_id++) {
-		if (attend_per_day[player_id][WED] > 9) {
+		if (attend_day[player_id][WED] > 9) {
 			points[player_id] += 10;
 		}
 
-		if (attend_per_day[player_id][SAT] + attend_per_day[player_id][SUN] > 9) {
+		if (attend_day[player_id][SAT] + attend_day[player_id][SUN] > 9) {
 			points[player_id] += 10;
 		}
 	}
@@ -140,4 +202,6 @@ int main() {
 	caculate_result();
 
 	print_socre();
+
+	return 0;
 }
