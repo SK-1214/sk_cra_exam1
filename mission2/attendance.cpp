@@ -34,30 +34,51 @@ map<string, int> player;
 class BASEBALL_PLAYER {
 public:
 	string name;
-	int id;
-	int point;
-	int attend_day[MAX_DAY];
 
 	void update_attendDay(int day) {
 		attend_day[day]++;
+
+		if (day == WED || day == SAT || day == SUN) {
+			mandatory_training = true;
+		}
 	}
 
 	void add_point(int day) {
-		point++;
-
 		if (day == WED){
 			point += 3;
-			mandatory_training = true;
 		}
 		else if (day == SAT || day == SUN) {
 			point += 2;
-			mandatory_training = true;
 		}
 		else{ 
 			point++;
 		}
 	}
+
+	bool IsAttendWedTrainingHard() {
+		if (attend_day[WED] > 9) return true;
+		else  return false;
+	}
+
+	bool IsAttendWeekendTrainingHard() {
+		if (attend_day[SAT] + attend_day[SUN] > 9) return true;
+		else  return false;
+	}
+	
+	bool IsAttendMandatoryTraining() {
+		return mandatory_training;
+	}
+
+	void IncreaseAdditionalPoint(int num) {
+		point += num;
+	}
+
+	int get_point() {
+		return point;
+	}
 private:
+	int point;
+	int attend_day[MAX_DAY];
 	bool mandatory_training = false;
 };
 
@@ -112,67 +133,45 @@ void update_trainingScore(int player_id, int day_index, int add_point) {
 	}
 }
 
-void analize_attendance(string name, string day) {
+void generate_PlayerInfo(string name, string day) {
 	
 	int player_id = get_playerID(name);
-	int add_point = 0;
-	int day_index = 0;
+	int day_index = get_DayIndex(day);
+	BASEBALL_PLAYER* pPlayer = &bplayer[player_id];
 
-	add_point++;
+	pPlayer->add_point(day_index);
+	pPlayer->update_attendDay(day_index);
 
-	if (day == "monday") {
-		day_index = MON;
-	}
-	if (day == "tuesday") {
-		day_index = TUE;
-	}
-	if (day == "wednesday") {
-		day_index = WED;
-		add_point += 2;
-	}
-	if (day == "thursday") {
-		day_index = THU;
-	}
-	if (day == "friday") {
-		day_index = FRI;
-	}
-	if (day == "saturday") {
-		day_index = SAT;
-		add_point += 1;
-	}
-	if (day == "sunday") {
-		day_index = SUN;
-		add_point += 1;
-	}
-	//사용자ID별 요일 데이터에 1씩 증가
-	update_trainingScore(player_id, day_index, add_point);
 }
 
-void caculate_result() {
+void caculate_AdditionalPoints() {
+	BASEBALL_PLAYER* pPlayer;
 
 	for (int player_id = 1; player_id <= num_player; player_id++) {
-		if (attend_day[player_id][WED] > 9) {
-			points[player_id] += 10;
-		}
+		pPlayer = &bplayer[player_id];
 
-		if (attend_day[player_id][SAT] + attend_day[player_id][SUN] > 9) {
-			points[player_id] += 10;
+		if (pPlayer->IsAttendWedTrainingHard() == true || pPlayer->IsAttendWeekendTrainingHard() == true) {
+			pPlayer->IncreaseAdditionalPoint(10);
 		}
 	}
 }
 
-void print_socre()
+void print_PlayerScore()
 {
+	BASEBALL_PLAYER* pPlayer;
+	int points;
 	for (int player_id = 1; player_id <= num_player; player_id++) {
+		pPlayer = &bplayer[player_id];
+		points = pPlayer->get_point();
 
 		cout << "NAME : " << names[player_id] << ", ";
-		cout << "POINT : " << points[player_id] << ", ";
+		cout << "POINT : " << points << ", ";
 		cout << "GRADE : ";
 
-		if (points[player_id] >= 50) {
+		if (points >= 50) {
 			cout << "GOLD" << "\n";
 		}
-		else if (points[player_id] >= 30) {
+		else if (points >= 30) {
 			cout << "SILVER" << "\n";
 		}
 		else {
@@ -184,11 +183,12 @@ void print_socre()
 	std::cout << "Removed player\n";
 	std::cout << "==============\n";
 	for (int player_id = 1; player_id <= num_player; player_id++) {
-		if (points[player_id] < 30 && mandatory_training[player_id] == false) {
+		if (points < 30 && mandatory_training[player_id] == false) {
 			std::cout << names[player_id] << "\n";
 		}
 	}
 }
+
 
 int main() {
 	ifstream fin{ "attendance_weekday_500.txt" }; //500개 데이터 입력
@@ -196,12 +196,12 @@ int main() {
 	for (int i = 0; i < 500; i++) {
 		string name, day;
 		fin >> name >> day;
-		analize_attendance(name, day);
+		generate_PlayerInfo(name, day);
 	}
 
-	caculate_result();
+	caculate_AdditionalPoints();
 
-	print_socre();
+	print_PlayerScore();
 
 	return 0;
 }
