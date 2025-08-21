@@ -22,13 +22,13 @@ enum {
 	MAX_DAY = 7,
 };
 
-string names[MAX_PLAYER];
+string g_names[MAX_PLAYER];
 bool mandatory_training[MAX_PLAYER];
 
 
-map<string, int> player;
+map<string, int> g_player;
 
-class BASEBALL_PLAYER {
+class PLAYER {
 public:
 	void update_attendDay(int day) {
 		attend_day[day]++;
@@ -86,18 +86,18 @@ private:
 	bool mandatory_training = false;
 };
 
-BASEBALL_PLAYER bplayer[MAX_PLAYER];
+PLAYER player[MAX_PLAYER];
 
 int num_player = 0;
 
 int get_playerID(std::string& name)
 {
 	//ID ºÎ¿©
-	if (player.count(name) == 0) {
-		player.insert({ name, ++num_player });
-		names[num_player] = name;
+	if (g_player.count(name) == 0) {
+		g_player.insert({ name, ++num_player });
+		g_names[num_player] = name;
 	}
-	return player[name];
+	return g_player[name];
 }
 
 int get_DayIndex(string day) {
@@ -132,7 +132,7 @@ void generate_PlayerInfo(string name, string day) {
 	
 	int id = get_playerID(name);
 	int day_index = get_DayIndex(day);
-	BASEBALL_PLAYER* pPlayer = &bplayer[id];
+	PLAYER* pPlayer = &player[id];
 
 	pPlayer->setName(name);
 	pPlayer->add_point(day_index);
@@ -141,10 +141,10 @@ void generate_PlayerInfo(string name, string day) {
 }
 
 void caculate_AdditionalPoints() {
-	BASEBALL_PLAYER* pPlayer;
+	PLAYER* pPlayer;
 
 	for (int id = 1; id <= num_player; id++) {
-		pPlayer = &bplayer[id];
+		pPlayer = &player[id];
 
 		if (pPlayer->IsAttendWedTrainingHard() == true || pPlayer->IsAttendWeekendTrainingHard() == true) {
 			pPlayer->IncreaseAdditionalPoint(10);
@@ -154,11 +154,11 @@ void caculate_AdditionalPoints() {
 
 void print_PlayerScore()
 {
-	BASEBALL_PLAYER* pPlayer;
+	PLAYER* pPlayer;
 	string name;
 	int points;
 	for (int id = 1; id <= num_player; id++) {
-		pPlayer = &bplayer[id];
+		pPlayer = &player[id];
 		name = pPlayer->getName();
 		points = pPlayer->getPoint();
 
@@ -182,7 +182,7 @@ void print_PlayerScore()
 	std::cout << "==============\n";
 	for (int id = 1; id <= num_player; id++) {
 		
-		pPlayer = &bplayer[id];
+		pPlayer = &player[id];
 		name = pPlayer->getName();
 		points = pPlayer->getPoint();
 
@@ -199,6 +199,7 @@ int main() {
 	for (int i = 0; i < 500; i++) {
 		string name, day;
 		fin >> name >> day;
+
 		generate_PlayerInfo(name, day);
 	}
 
